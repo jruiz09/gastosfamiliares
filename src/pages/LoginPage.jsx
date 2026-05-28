@@ -133,7 +133,7 @@ navigate('/');
               mb-2
             "
           >
-            Pink Money
+            Gastos Familiares
           </h1>
 
           <p className="text-zinc-400 mb-8">
