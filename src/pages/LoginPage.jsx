@@ -137,7 +137,7 @@ navigate('/');
           </h1>
 
           <p className="text-zinc-400 mb-8">
-            Tus gastos familiares 💸
+            Tus gastos familiares 💸 
           </p>
 
           {/* ERROR */}
