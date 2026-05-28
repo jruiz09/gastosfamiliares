@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const clienteAxios = axios.create({
 
-  baseURL: 'http://149.50.138.198:4000/api',
+  baseURL: 'https://app.cplanet.com.ar/apigastosfamiliares/api',
 
 });
 
