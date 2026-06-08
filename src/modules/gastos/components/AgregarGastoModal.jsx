@@ -1,52 +1,92 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import clienteAxios from "../../../api/clienteAxios";
-
 import { useCategorias } from "../hooks/useCategorias";
-
 import { useTiposCuenta } from "../hooks/useTiposCuenta";
 
-function AgregarGastoModal({ open, onClose }) {
+function AgregarGastoModal({
+  open,
+  onClose,
+  gasto = null,
+}) {
   const queryClient = useQueryClient();
 
   const { data: categorias = [] } = useCategorias();
-
   const { data: tiposCuenta = [] } = useTiposCuenta();
+
+  const esEdicion = !!gasto;
 
   const [form, setForm] = useState({
     descripcion: "",
-
     monto: "",
-
     fecha: new Date().toISOString().split("T")[0],
-
     categoria_id: "",
-
     tipo_cuenta_id: "",
-
     observaciones: "",
   });
 
+  useEffect(() => {
+    if (gasto) {
+      setForm({
+        descripcion: gasto.descripcion || "",
+        monto: gasto.monto || "",
+        fecha: gasto.fecha
+          ? gasto.fecha.split("T")[0]
+          : new Date().toISOString().split("T")[0],
+        categoria_id:
+          gasto.categoria_id ||
+          gasto.Categoria?.id ||
+          "",
+        tipo_cuenta_id:
+          gasto.tipo_cuenta_id ||
+          gasto.TipoCuenta?.id ||
+          "",
+        observaciones:
+          gasto.observaciones || "",
+      });
+    } else {
+      setForm({
+        descripcion: "",
+        monto: "",
+        fecha: new Date().toISOString().split("T")[0],
+        categoria_id: "",
+        tipo_cuenta_id: "",
+        observaciones: "",
+      });
+    }
+  }, [gasto, open]);
+
   const mutation = useMutation({
     mutationFn: async () => {
-      await clienteAxios.post("/gastos", form);
+      if (esEdicion) {
+        return clienteAxios.put(
+          `/gastos/${gasto.id}`,
+          form
+        );
+      }
+
+      return clienteAxios.post(
+        "/gastos",
+        form
+      );
     },
 
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ultimos-gastos"],
+      });
 
-        queryClient.invalidateQueries({
-  queryKey: ['ultimos-gastos']
-});
       queryClient.invalidateQueries({
         queryKey: ["resumen-mensual"],
       });
 
       queryClient.invalidateQueries({
         queryKey: ["evolucion-anual"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["gastos"],
       });
 
       onClose();
@@ -79,35 +119,19 @@ function AgregarGastoModal({ open, onClose }) {
           p-6
           border
           border-pink-100
-          animate-in
         "
       >
-        {/* HEADER */}
-
-        <div
-          className="
-            flex
-            items-center
-            justify-between
-            mb-6
-          "
-        >
-          <h2
-            className="
-              text-2xl
-              font-black
-              text-primary
-            "
-          >
-            Nuevo gasto 💸
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-black text-primary">
+            {esEdicion
+              ? "Editar gasto ✏️"
+              : "Nuevo gasto 💸"}
           </h2>
 
           <button onClick={onClose}>
             <X />
           </button>
         </div>
-
-        {/* FORM */}
 
         <div className="space-y-4">
           <input
@@ -119,18 +143,7 @@ function AgregarGastoModal({ open, onClose }) {
                 descripcion: e.target.value,
               })
             }
-            className="
-              w-full
-              bg-slate-100
-              border
-              border-pink-100
-              rounded-2xl
-              px-5
-              py-4
-              outline-none
-              text-slate-900
-              placeholder-slate-400
-            "
+            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           />
 
           <input
@@ -143,18 +156,7 @@ function AgregarGastoModal({ open, onClose }) {
                 monto: e.target.value,
               })
             }
-            className="
-              w-full
-              bg-slate-100
-              border
-              border-pink-100
-              rounded-2xl
-              px-5
-              py-4
-              outline-none
-              text-slate-900
-              placeholder-slate-400
-            "
+            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           />
 
           <input
@@ -166,20 +168,8 @@ function AgregarGastoModal({ open, onClose }) {
                 fecha: e.target.value,
               })
             }
-            className="
-              w-full
-              bg-slate-100
-              border
-              border-pink-100
-              rounded-2xl
-              px-5
-              py-4
-              outline-none
-              text-slate-900
-            "
+            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           />
-
-          {/* CATEGORIA */}
 
           <select
             value={form.categoria_id}
@@ -189,31 +179,22 @@ function AgregarGastoModal({ open, onClose }) {
                 categoria_id: e.target.value,
               })
             }
-            className="
-              w-full
-              bg-slate-100
-              border
-              border-pink-100
-              rounded-2xl
-              px-5
-              py-4
-              outline-none
-              text-slate-900
-            "
+            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           >
             <option value="">Categoría</option>
 
             {categorias
               .filter((c) => c.tipo === "GASTO")
               .map((categoria) => (
-                <option key={categoria.id} value={categoria.id} 
-  className="text-black">
+                <option
+                  key={categoria.id}
+                  value={categoria.id}
+                  className="text-black"
+                >
                   {categoria.nombre}
                 </option>
               ))}
           </select>
-
-          {/* TIPO CUENTA */}
 
           <select
             value={form.tipo_cuenta_id}
@@ -223,30 +204,20 @@ function AgregarGastoModal({ open, onClose }) {
                 tipo_cuenta_id: e.target.value,
               })
             }
-            className="
-              w-full
-              bg-slate-100
-              border
-              border-pink-100
-              rounded-2xl
-              px-5
-              py-4
-              outline-none
-              text-slate-900
-              placeholder-slate-400
-            "
+            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           >
             <option value="">Cuenta</option>
 
             {tiposCuenta.map((tipo) => (
-              <option key={tipo.id} value={tipo.id} 
-  className="text-black">
+              <option
+                key={tipo.id}
+                value={tipo.id}
+                className="text-black"
+              >
                 {tipo.nombre}
               </option>
             ))}
           </select>
-
-          {/* BOTON */}
 
           <button
             onClick={() => mutation.mutate()}
@@ -261,7 +232,11 @@ function AgregarGastoModal({ open, onClose }) {
               mt-5
             "
           >
-            {mutation.isPending ? "Guardando..." : "Guardar gasto"}
+            {mutation.isPending
+              ? "Guardando..."
+              : esEdicion
+              ? "Guardar cambios"
+              : "Guardar gasto"}
           </button>
         </div>
       </div>

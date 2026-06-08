@@ -274,7 +274,7 @@ function DashboardPage() {
         <div>
 
           <h1 className="text-3xl font-black text-primary">
-            Dashboard 💖
+            Dashboard
           </h1>
 
           <p className="text-zinc-400">

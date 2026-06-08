@@ -25,6 +25,7 @@ function GastosPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [openFab, setOpenFab] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [gastoSeleccionado, setGastoSeleccionado] = useState(null);
 
   // Filtros
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
@@ -39,6 +40,12 @@ function GastosPage() {
   const [fechaInicio, setFechaInicio] = useState(location.state?.fechaInicio || null);
   const [fechaFin, setFechaFin] = useState(location.state?.fechaFin || null);
 
+
+
+  const handleEditarGasto = (gasto) => {
+  setGastoSeleccionado(gasto);
+  setOpenModal(true);
+};
   const fechaFiltro = useMemo(() => {
     if (viewMode === 'year') {
       return {
@@ -125,7 +132,10 @@ function GastosPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-3xl font-bold text-slate-900 mb-0">Gastos</h1>
             <button
-              onClick={() => setOpenModal(true)}
+              onClick={() => {
+  setGastoSeleccionado(null);
+  setOpenModal(true);
+}}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-white shadow-pink hover:bg-pink-500 transition-colors text-sm font-semibold"
             >
               + Nuevo gasto
@@ -414,13 +424,15 @@ function GastosPage() {
               animate={{ opacity: 1 }}
               className="space-y-3"
             >
-              {gastosFiltrados.map((gasto, index) => (
-                <GastoCard
-                  key={gasto.id}
-                  {...gasto}
-                  index={index}
-                />
-              ))}
+             {gastosFiltrados.map((gasto, index) => (
+  <GastoCard
+    key={gasto.id}
+    {...gasto}
+    Usuario={gasto.usuario}
+    index={index}
+    onEdit={() => handleEditarGasto(gasto)}
+  />
+))}
             </motion.div>
 
             {/* Información de Paginación */}
@@ -512,10 +524,14 @@ function GastosPage() {
       />
 
       {/* Modal Agregar Gasto */}
-      <AgregarGastoModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-      />
+  <AgregarGastoModal
+  open={openModal}
+  gasto={gastoSeleccionado}
+  onClose={() => {
+    setOpenModal(false);
+    setGastoSeleccionado(null);
+  }}
+/>
     </div>
   );
 }

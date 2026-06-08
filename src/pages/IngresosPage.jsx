@@ -23,7 +23,16 @@ function IngresosPage() {
   const [fechaFin, setFechaFin] = useState(location.state?.fechaFin || null);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [tipoCuentaSeleccionado, setTipoCuentaSeleccionado] = useState(null);
+  
 
+
+
+  const [ingresoSeleccionado, setIngresoSeleccionado] = useState(null);
+
+const handleEditarIngreso = (ingreso) => {
+  setIngresoSeleccionado(ingreso);
+  setOpenModal(true);
+};
   const { data: categorias = [] } = useCategorias();
   const { data: tiposCuenta = [] } = useTiposCuenta();
 
@@ -76,8 +85,14 @@ function IngresosPage() {
 
   return (
     <div className="min-h-screen bg-dark pb-20">
-      <AgregarIngresoModal open={openModal} onClose={() => setOpenModal(false)} />
-
+<AgregarIngresoModal
+  open={openModal}
+  ingreso={ingresoSeleccionado}
+  onClose={() => {
+    setOpenModal(false);
+    setIngresoSeleccionado(null);
+  }}
+/>
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -91,7 +106,10 @@ function IngresosPage() {
             </div>
 
             <button
-              onClick={() => setOpenModal(true)}
+              onClick={() => {
+  setIngresoSeleccionado(null);
+  setOpenModal(true);
+}}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-white shadow-pink hover:bg-pink-500 transition-colors"
             >
               <Plus size={18} />
@@ -281,26 +299,48 @@ function IngresosPage() {
             {ingresosFiltrados.map((ingreso) => (
               <Card key={ingreso.id} className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="font-semibold text-slate-900 truncate">{ingreso.descripcion}</p>
-                  <p className="text-xs text-slate-500 mt-1">{ingreso.categoria?.nombre || 'Sin categoría'}</p>
-                  <p className="text-xs text-slate-500">{ingreso.tipo_cuenta?.nombre || 'Cuenta'}</p>
-                </div>
+  <p className="font-semibold text-slate-900 truncate">
+    {ingreso.descripcion}
+  </p>
 
-                <div className="text-right">
-                  <p className="text-lg font-bold text-green-500">
-                    +{Number(ingreso.monto).toLocaleString('es-AR', {
-                      style: 'currency',
-                      currency: 'ARS',
-                    })}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {new Date(ingreso.fecha).toLocaleDateString('es-AR', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </div>
+  <p className="text-xs text-slate-500 mt-1">
+    {ingreso.categoria?.nombre || 'Sin categoría'}
+  </p>
+
+  <p className="text-xs text-slate-500">
+    {ingreso.tipos_cuentum?.nombre || 'Cuenta'}
+  </p>
+
+  {ingreso.usuario && (
+    <p className="text-xs text-slate-400">
+      por {ingreso.usuario.nombre}
+    </p>
+  )}
+</div>
+
+<div className="text-right flex flex-col items-end gap-2">
+  <p className="text-lg font-bold text-green-500">
+    +{Number(ingreso.monto).toLocaleString('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+    })}
+  </p>
+
+  <p className="text-xs text-slate-500">
+    {new Date(ingreso.fecha).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })}
+  </p>
+
+  <button
+    onClick={() => handleEditarIngreso(ingreso)}
+    className="text-blue-500 text-xs hover:text-blue-700"
+  >
+    ✏️ Editar
+  </button>
+</div>
               </Card>
             ))}
           </div>

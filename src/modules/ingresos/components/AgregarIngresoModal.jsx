@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { X } from 'lucide-react';
 
@@ -19,7 +19,8 @@ import {
 
 function AgregarIngresoModal({
   open,
-  onClose
+  onClose,
+  ingreso = null
 }) {
 
   const queryClient =
@@ -32,6 +33,8 @@ function AgregarIngresoModal({
   const {
     data: tiposCuenta = []
   } = useTiposCuenta();
+
+  const esEdicion = !!ingreso;
 
   const [form, setForm] =
     useState({
@@ -53,11 +56,75 @@ function AgregarIngresoModal({
 
     });
 
+  useEffect(() => {
+
+    if (ingreso) {
+
+      setForm({
+
+        descripcion:
+          ingreso.descripcion || '',
+
+        monto:
+          ingreso.monto || '',
+
+        fecha:
+          ingreso.fecha
+            ? ingreso.fecha.split('T')[0]
+            : new Date()
+                .toISOString()
+                .split('T')[0],
+
+        categoria_id:
+          ingreso.categoria_id || '',
+
+        tipo_cuenta_id:
+          ingreso.tipo_cuenta_id || '',
+
+        observaciones:
+          ingreso.observaciones || '',
+
+      });
+
+    } else {
+
+      setForm({
+
+        descripcion: '',
+
+        monto: '',
+
+        fecha:
+          new Date()
+            .toISOString()
+            .split('T')[0],
+
+        categoria_id: '',
+
+        tipo_cuenta_id: '',
+
+        observaciones: '',
+
+      });
+
+    }
+
+  }, [ingreso, open]);
+
   const mutation = useMutation({
 
     mutationFn: async () => {
 
-      await clienteAxios.post(
+      if (esEdicion) {
+
+        return await clienteAxios.put(
+          `/ingresos/${ingreso.id}`,
+          form
+        );
+
+      }
+
+      return await clienteAxios.post(
         '/ingresos',
         form
       );
@@ -76,6 +143,10 @@ function AgregarIngresoModal({
 
       queryClient.invalidateQueries({
         queryKey: ['ultimos-ingresos']
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['ingresos']
       });
 
       onClose();
@@ -131,7 +202,11 @@ function AgregarIngresoModal({
               text-green-400
             "
           >
-            Nuevo ingreso 💚
+            {
+              esEdicion
+                ? 'Editar ingreso ✏️'
+                : 'Nuevo ingreso 💚'
+            }
           </h2>
 
           <button onClick={onClose}>
@@ -214,8 +289,6 @@ function AgregarIngresoModal({
             "
           />
 
-          {/* CATEGORIA */}
-
           <select
             value={form.categoria_id}
             onChange={(e) =>
@@ -262,8 +335,6 @@ function AgregarIngresoModal({
             }
 
           </select>
-
-          {/* CUENTA */}
 
           <select
             value={form.tipo_cuenta_id}
@@ -326,7 +397,9 @@ function AgregarIngresoModal({
             {
               mutation.isPending
                 ? 'Guardando...'
-                : 'Guardar ingreso'
+                : esEdicion
+                  ? 'Guardar cambios'
+                  : 'Guardar ingreso'
             }
 
           </button>
