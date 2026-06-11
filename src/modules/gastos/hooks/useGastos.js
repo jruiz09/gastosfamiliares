@@ -10,16 +10,37 @@ const obtenerGastos = async ({
   tipoCuenta = null,
   busqueda = null,
 }) => {
-  const params = new URLSearchParams({
-    pagina,
-    limite,
-    ...(categoria && { categoria }),
-    ...(fechaDesde && { fechaDesde }),
-    ...(fechaHasta && { fechaHasta }),
-    ...(tipoCuenta && { tipoCuenta }),
-  });
 
-  const { data } = await clienteAxios.get(`/gastos?${params.toString()}`);
+  const params = new URLSearchParams();
+
+  params.append('pagina', pagina);
+  params.append('limite', limite);
+
+  if (categoria) {
+    params.append('categoria', categoria);
+  }
+
+  if (fechaDesde) {
+    params.append('fechaDesde', fechaDesde);
+  }
+
+  if (fechaHasta) {
+    params.append('fechaHasta', fechaHasta);
+  }
+
+  if (tipoCuenta) {
+    params.append('tipoCuenta', tipoCuenta);
+  }
+
+  if (busqueda?.trim()) {
+    params.append('busqueda', busqueda.trim());
+  }
+
+  const { data } =
+    await clienteAxios.get(
+      `/gastos?${params.toString()}`
+    );
+
   return data;
 };
 
@@ -30,9 +51,12 @@ export function useGastos({
   fechaDesde = null,
   fechaHasta = null,
   tipoCuenta = null,
+  busqueda = null,
   enabled = true,
 } = {}) {
+
   return useQuery({
+
     queryKey: [
       'gastos',
       pagina,
@@ -41,7 +65,9 @@ export function useGastos({
       fechaDesde,
       fechaHasta,
       tipoCuenta,
+      busqueda,
     ],
+
     queryFn: () =>
       obtenerGastos({
         pagina,
@@ -50,7 +76,17 @@ export function useGastos({
         fechaDesde,
         fechaHasta,
         tipoCuenta,
+        busqueda,
       }),
+
     enabled,
+
+    staleTime: 1000 * 60 * 5,
+
+    placeholderData: (previousData) =>
+      previousData,
+
+    refetchOnWindowFocus: false,
+
   });
 }

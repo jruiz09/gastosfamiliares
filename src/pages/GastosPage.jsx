@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';  
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -17,8 +17,25 @@ import GastoCard from '../modules/gastos/components/GastoCard';
 import Card from '../components/ui/Card';
 import AgregarGastoModal from '../modules/gastos/components/AgregarGastoModal';
 import FabActions from '../components/ui/FabActions';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
 
 function GastosPage() {
+  const COLORS = [
+  '#ec4899',
+  '#8b5cf6',
+  '#06b6d4',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#6366f1',
+];
   const location = useLocation();
   const [pagina, setPagina] = useState(1);
   const [busqueda, setBusqueda] = useState('');
@@ -30,8 +47,6 @@ function GastosPage() {
   // Filtros
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [tipoCuentaSeleccionado, setTipoCuentaSeleccionado] = useState(null);
-  const [fechaDesde, setFechaDesde] = useState(null);
-  const [fechaHasta, setFechaHasta] = useState(null);
   const [viewMode, setViewMode] = useState(location.state?.viewMode || 'year');
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
@@ -46,30 +61,64 @@ function GastosPage() {
   setGastoSeleccionado(gasto);
   setOpenModal(true);
 };
-  const fechaFiltro = useMemo(() => {
-    if (viewMode === 'year') {
-      return {
-        fechaDesde: `${selectedYear}-01-01`,
-        fechaHasta: `${selectedYear}-12-31`,
-      };
-    }
-    if (viewMode === 'month') {
-      const mesFormateado = String(selectedMonth).padStart(2, '0');
-      return {
-        fechaDesde: `${selectedYear}-${mesFormateado}-01`,
-        fechaHasta: `${selectedYear}-${mesFormateado}-31`,
-      };
-    }
+const fechaFiltro = useMemo(() => {
+
+  if (viewMode === 'year') {
     return {
-      fechaDesde: fechaInicio,
-      fechaHasta: fechaFin,
+      fechaDesde: `${selectedYear}-01-01`,
+      fechaHasta: `${selectedYear}-12-31`,
     };
-  }, [viewMode, selectedYear, selectedMonth, fechaInicio, fechaFin]);
+  }
+
+  if (viewMode === 'month') {
+
+    const mes = String(
+      selectedMonth
+    ).padStart(2, '0');
+
+    const ultimoDia = new Date(
+      selectedYear,
+      selectedMonth,
+      0
+    ).getDate();
+
+    return {
+      fechaDesde: `${selectedYear}-${mes}-01`,
+      fechaHasta: `${selectedYear}-${mes}-${ultimoDia}`,
+    };
+  }
+
+  return {
+    fechaDesde: fechaInicio || null,
+    fechaHasta: fechaFin || null,
+  };
+
+}, [
+  viewMode,
+  selectedYear,
+  selectedMonth,
+  fechaInicio,
+  fechaFin,
+]);
+
+
+useEffect(() => {
+
+  setPagina(1);
+
+}, [
+  categoriaSeleccionada,
+  tipoCuentaSeleccionado,
+  selectedYear,
+  selectedMonth,
+  fechaInicio,
+  fechaFin,
+]);
 
   // Queries
   const { data: gastos, isLoading } = useGastos({
     pagina,
-    limite: 15,
+    limite: 100,
     categoria: categoriaSeleccionada,
     tipoCuenta: tipoCuentaSeleccionado,
     fechaDesde: fechaFiltro.fechaDesde,
@@ -80,29 +129,69 @@ function GastosPage() {
   const { data: tiposCuenta = [] } = useTiposCuenta();
 
   // Filtrar gastos localmente por búsqueda
-  const gastosFiltrados = gastos?.resultados?.filter((gasto) =>
-    gasto.descripcion.toLowerCase().includes(busqueda.toLowerCase())
+const gastosFiltrados =
+  gastos?.resultados?.filter(
+    gasto =>
+      (gasto.descripcion || '')
+        .toLowerCase()
+        .includes(
+          busqueda.toLowerCase()
+        )
   ) || [];
 
-  const handleLimpiarFiltros = useCallback(() => {
-    setBusqueda('');
-    setCategoriaSeleccionada(null);
-    setTipoCuentaSeleccionado(null);
-    setFechaDesde(null);
-    setFechaHasta(null);
-    setViewMode('year');
-    setSelectedYear(currentYear);
-    setSelectedMonth(currentMonth);
-    setPagina(1);
-  }, [currentMonth, currentYear]);
+const gastosPorCategoria = useMemo(() => {
+  const resumen = {};
 
-  const tieneFiltrosActivos =
-    busqueda ||
-    categoriaSeleccionada ||
-    tipoCuentaSeleccionado ||
-    fechaDesde ||
-    fechaHasta;
+  gastosFiltrados.forEach((gasto) => {
+    const categoria =
+      gasto.categoria?.nombre ||
+      gasto.Categoria?.nombre ||
+      'Sin categoría';
 
+    resumen[categoria] =
+      (resumen[categoria] || 0) +
+      Number(gasto.monto);
+  });
+
+return Object.entries(resumen)
+  .map(([categoria, monto]) => ({
+    categoria,
+    monto,
+  }))
+  .sort((a, b) => b.monto - a.monto);
+}, [gastosFiltrados]);
+
+const handleLimpiarFiltros = useCallback(() => {
+
+  setBusqueda('');
+
+  setCategoriaSeleccionada(null);
+
+  setTipoCuentaSeleccionado(null);
+
+  setFechaInicio(null);
+
+  setFechaFin(null);
+
+  setViewMode('year');
+
+  setSelectedYear(currentYear);
+
+  setSelectedMonth(currentMonth);
+
+  setPagina(1);
+
+}, [
+  currentMonth,
+  currentYear
+]);
+
+const tieneFiltrosActivos =
+  busqueda ||
+  categoriaSeleccionada ||
+  tipoCuentaSeleccionado ||
+  fechaInicio ||
+  fechaFin;
   // Skeleton Loading
   const SkeletonCard = () => (
     <div className="animate-pulse">
@@ -257,12 +346,12 @@ function GastosPage() {
             {tieneFiltrosActivos && (
               <span className="ml-auto bg-primary text-white text-xs px-2 py-1 rounded-full">
                 {[
-                  busqueda,
-                  categoriaSeleccionada,
-                  tipoCuentaSeleccionado,
-                  fechaDesde,
-                  fechaHasta,
-                ].filter(Boolean).length}
+  busqueda,
+  categoriaSeleccionada,
+  tipoCuentaSeleccionado,
+  fechaInicio,
+  fechaFin,
+].filter(Boolean).length}
               </span>
             )}
           </button>
@@ -336,37 +425,7 @@ function GastosPage() {
               </div>
             )}
 
-            {/* Fechas */}
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-2">
-                  Desde
-                </label>
-                <input
-                  type="date"
-                  value={fechaDesde || ''}
-                  onChange={(e) => {
-                    setFechaDesde(e.target.value || null);
-                    setPagina(1);
-                  }}
-                  className="w-full px-3 py-2 bg-card border border-pink-100 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-2">
-                  Hasta
-                </label>
-                <input
-                  type="date"
-                  value={fechaHasta || ''}
-                  onChange={(e) => {
-                    setFechaHasta(e.target.value || null);
-                    setPagina(1);
-                  }}
-                  className="w-full px-3 py-2 bg-card border border-pink-100 rounded-lg text-slate-900 text-sm focus:outline-none focus:border-primary"
-                />
-              </div>
-            </div>
+          
 
             {/* Botón Limpiar */}
             {tieneFiltrosActivos && (
@@ -418,6 +477,139 @@ function GastosPage() {
           </motion.div>
         ) : (
           <>
+
+          {/* Resumen */}
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.1 }}
+  className="mb-4"
+>
+  <Card className="bg-primary/5 border-primary/20">
+    <div className="text-center">
+      <p className="text-gray-400 text-sm mb-1">
+        Total mostrado
+      </p>
+
+      <p className="text-2xl font-bold text-primary">
+        -{new Intl.NumberFormat(
+          'es-AR',
+          {
+            style: 'currency',
+            currency: 'ARS',
+          }
+        ).format(
+          gastosFiltrados.reduce(
+            (sum, g) =>
+              sum + Number(g.monto),
+            0
+          )
+        )}
+      </p>
+    </div>
+  </Card>
+</motion.div>
+
+{gastosPorCategoria.length > 0 && (
+  <>
+    <Card className="mb-4">
+      <h3 className="text-lg font-semibold mb-4">
+        Gastos por categoría
+      </h3>
+
+      <div
+        style={{
+          width: '100%',
+          height: 300,
+        }}
+      >
+        <ResponsiveContainer>
+          <PieChart>
+            <Pie
+              data={gastosPorCategoria}
+              dataKey="monto"
+              nameKey="categoria"
+              outerRadius={90}
+              label={({
+                categoria,
+                percent,
+              }) =>
+                `${categoria} ${(
+                  percent * 100
+                ).toFixed(0)}%`
+              }
+            >
+              {gastosPorCategoria.map(
+                (_, index) => (
+                  <Cell
+                    key={index}
+                    fill={
+                      COLORS[
+                        index %
+                          COLORS.length
+                      ]
+                    }
+                  />
+                )
+              )}
+            </Pie>
+
+            <Tooltip
+              formatter={(value) =>
+                new Intl.NumberFormat(
+                  'es-AR',
+                  {
+                    style:
+                      'currency',
+                    currency:
+                      'ARS',
+                  }
+                ).format(value)
+              }
+            />
+
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+
+    <Card className="mb-4">
+      <h3 className="text-lg font-semibold mb-4">
+        Ranking de categorías
+      </h3>
+
+      <div className="space-y-2">
+        {gastosPorCategoria.map(
+          (item) => (
+            <div
+              key={item.categoria}
+              className="flex justify-between items-center"
+            >
+              <span className="text-sm">
+                {item.categoria}
+              </span>
+
+              <span className="font-semibold">
+                {new Intl.NumberFormat(
+                  'es-AR',
+                  {
+                    style:
+                      'currency',
+                    currency:
+                      'ARS',
+                  }
+                ).format(
+                  item.monto
+                )}
+              </span>
+            </div>
+          )
+        )}
+      </div>
+    </Card>
+  </>
+)}
             {/* Lista de Gastos */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -472,56 +664,13 @@ function GastosPage() {
               </motion.div>
             )}
 
-            {/* Resumen */}
-            {gastosFiltrados.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="mt-6"
-              >
-                <Card className="bg-primary/5 border-primary/20">
-                  <div className="text-center">
-                    <p className="text-gray-400 text-sm mb-1">Total mostrado</p>
-                    <p className="text-2xl font-bold text-primary">
-                      -{new Intl.NumberFormat('es-AR', {
-                        style: 'currency',
-                        currency: 'ARS',
-                      }).format(
-                        gastosFiltrados.reduce((sum, g) => sum + Number(g.monto), 0)
-                      )}
-                    </p>
-                  </div>
-                </Card>
-              </motion.div>
-            )}
+          
           </>
         )}
       </div>
 
-      {/* FAB - Botón Agregar */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setOpenFab(true)}
-        className="fixed bottom-28 right-4 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-pink flex items-center justify-center z-50 hover:shadow-lg transition-shadow md:bottom-24"
-      >
-        <Plus size={24} />
-      </motion.button>
 
-      {/* FAB Menu */}
-      <FabActions
-        open={openFab}
-        onClose={() => setOpenFab(false)}
-        onGasto={() => {
-          setOpenFab(false);
-          setOpenModal(true);
-        }}
-        onIngreso={() => {
-          setOpenFab(false);
-          // TODO: Agregar modal de ingresos
-        }}
-      />
+     
 
       {/* Modal Agregar Gasto */}
   <AgregarGastoModal

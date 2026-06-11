@@ -2,6 +2,8 @@ import React from 'react';
 
 import ReactDOM from 'react-dom/client';
 
+import { registerSW } from 'virtual:pwa-register'
+
 import {
   QueryClient,
   QueryClientProvider,
@@ -12,6 +14,10 @@ import App from './App';
 import './index.css';
 
 const queryClient = new QueryClient();
+
+registerSW({
+  immediate: true
+})
 
 ReactDOM.createRoot(
   document.getElementById('root')
