@@ -52,7 +52,6 @@ function AppLayout({ children }) {
           </div>
         </div>
       </div>
-      <BottomNav />
 
       {/* Content */}
 
