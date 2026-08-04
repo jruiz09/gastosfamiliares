@@ -275,314 +275,614 @@ function DashboardPage() {
   }
 
 
-  return (
+ return (
 
-    <>
+  <>
 
-      <AgregarGastoModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-      />
+    <AgregarGastoModal
+      open={openModal}
+      onClose={() => setOpenModal(false)}
+    />
 
-      <AgregarIngresoModal
-        open={openIngreso}
-        onClose={() => setOpenIngreso(false)}
-      />
+    <AgregarIngresoModal
+      open={openIngreso}
+      onClose={() => setOpenIngreso(false)}
+    />
 
-      <FabActions
-        open={openFab}
-        onClose={() => setOpenFab(false)}
-        onGasto={() => {
-          setOpenFab(false);
-          setOpenModal(true);
-        }}
-        onIngreso={() => {
-          setOpenFab(false);
-          setOpenIngreso(true);
-        }}
-      />
+    <FabActions
+      open={openFab}
+      onClose={() => setOpenFab(false)}
+      onGasto={() => {
+        setOpenFab(false);
+        setOpenModal(true);
+      }}
+      onIngreso={() => {
+        setOpenFab(false);
+        setOpenIngreso(true);
+      }}
+    />
 
-      <div className="space-y-6">
+    <div className="space-y-5 pb-28">
 
       {/* HEADER */}
 
-<div className="space-y-5">
+      <div className="flex items-center justify-between">
 
-  <div className="flex items-center justify-between">
+        <div>
+
+          <h1 className="text-3xl font-black leading-none">
+            Dashboard
+          </h1>
+
+          <p className="text-sm text-zinc-500 mt-2">
+            {selectedTitle}
+          </p>
+
+        </div>
+
+        <button
+
+          onClick={() => setOpenFab(true)}
+
+          className="
+            w-14
+            h-14
+
+            rounded-2xl
+
+            bg-primary
+
+            text-white
+
+            flex
+
+            items-center
+
+            justify-center
+
+            shadow-lg
+
+            active:scale-95
+
+            transition
+          "
+
+        >
+
+          <Plus size={26} />
+
+        </button>
+
+      </div>
+
+      <ActionStrip
+
+        onAddExpense={() => {
+
+          setOpenFab(false);
+
+          setOpenModal(true);
+
+        }}
+
+        onAddIncome={() => {
+
+          setOpenFab(false);
+
+          setOpenIngreso(true);
+
+        }}
+
+        onOpenReports={() => navigate('/reportes')}
+
+      />
+
+      {/* FILTROS */}
+
+      <Card className="p-3">
+
+        <div className="space-y-3">
+
+          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+
+            {['year', 'month', 'day'].map((mode) => (
+
+              <button
+
+                key={mode}
+
+                type="button"
+
+                onClick={() => setViewMode(mode)}
+
+                className={`
+
+                  whitespace-nowrap
+
+                  rounded-lg
+
+                  px-4
+
+                  py-2
+
+                  text-sm
+
+                  font-semibold
+
+                  transition
+
+                  ${
+                    viewMode === mode
+                      ? 'bg-primary text-white'
+                      : 'bg-zinc-100 text-zinc-600'
+                  }
+
+                `}
+
+              >
+
+                {mode === 'year'
+                  ? 'Año'
+                  : mode === 'month'
+                  ? 'Mes'
+                  : 'Rango'}
+
+              </button>
+
+            ))}
+
+          </div>
+
+          <div className="space-y-3">
+
+            <select
+
+              value={selectedYear}
+
+              onChange={(e) =>
+                setSelectedYear(Number(e.target.value))
+              }
+
+              className="
+                w-full
+
+                rounded-lg
+
+                border
+
+                border-zinc-200
+
+                px-4
+
+                py-3
+
+                bg-white
+              "
+
+            >
+
+              {years.map((year) => (
+
+                <option
+                  key={year}
+                  value={year}
+                >
+
+                  {year}
+
+                </option>
+
+              ))}
+
+            </select>
+
+            {
+
+              viewMode === 'month' && (
+
+                <select
+
+                  value={selectedMonth}
+
+                  onChange={(e) =>
+                    setSelectedMonth(Number(e.target.value))
+                  }
+
+                  className="
+                    w-full
+
+                    rounded-lg
+
+                    border
+
+                    border-zinc-200
+
+                    px-4
+
+                    py-3
+
+                    bg-white
+                  "
+
+                >
+
+                  {
+
+                    months.map(mes => (
+
+                      <option
+
+                        key={mes.value}
+
+                        value={mes.value}
+
+                      >
+
+                        {mes.label}
+
+                      </option>
+
+                    ))
+
+                  }
+
+                </select>
+
+              )
+
+            }
+
+            {
+
+              viewMode === 'day' && (
+
+                <div className="grid grid-cols-2 gap-3">
+
+                  <input
+
+                    type="date"
+
+                    value={fechaInicio}
+
+                    onChange={(e) =>
+                      setFechaInicio(e.target.value)
+                    }
+
+                    className="
+                      rounded-lg
+
+                      border
+
+                      border-zinc-200
+
+                      px-3
+
+                      py-3
+                    "
+
+                  />
+
+                  <input
+
+                    type="date"
+
+                    value={fechaFin}
+
+                    onChange={(e) =>
+                      setFechaFin(e.target.value)
+                    }
+
+                    className="
+                      rounded-lg
+
+                      border
+
+                      border-zinc-200
+
+                      px-3
+
+                      py-3
+                    "
+
+                  />
+
+                </div>
+
+              )
+
+            }
+
+          </div>
+
+        </div>
+
+      </Card>
+
+      {/* RESUMEN */}
+
+      <div className="space-y-3">
+
+        <div
+
+          onClick={() =>
+            navigate('/movimientos', {
+              state: {
+                viewMode,
+                selectedYear,
+                selectedMonth,
+                fechaInicio,
+                fechaFin,
+              },
+            })
+          }
+
+        >
+
+          <InsightCard
+
+            title="Balance"
+
+            value={`$${totalBalance.toLocaleString()}`}
+
+            hint="Disponible"
+
+            accent="primary"
+
+            icon={<Wallet size={22} />}
+
+          />
+
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+
+          <div
+
+            onClick={() =>
+              navigate('/ingresos', {
+                state: {
+                  viewMode,
+                  selectedYear,
+                  selectedMonth,
+                  fechaInicio,
+                  fechaFin,
+                },
+              })
+            }
+
+          >
+
+            <InsightCard
+
+              title="Ingresos"
+
+              value={`$${totalIngresos.toLocaleString()}`}
+
+              hint="Período"
+
+              accent="success"
+
+              icon={<TrendingUp size={20} />}
+
+            />
+
+          </div>
+
+          <div
+
+            onClick={() =>
+              navigate('/gastos', {
+                state: {
+                  viewMode,
+                  selectedYear,
+                  selectedMonth,
+                  fechaInicio,
+                  fechaFin,
+                },
+              })
+            }
+
+          >
+
+            <InsightCard
+
+              title="Gastos"
+
+              value={`$${totalGastos.toLocaleString()}`}
+
+              hint="Período"
+
+              accent="danger"
+
+              icon={<TrendingDown size={20} />}
+
+            />
+
+          </div>
+
+        </div>
+
+      </div>{/* ULTIMOS GASTOS */}
+
+<Card className="p-3.5">
+
+  <div className="flex items-center justify-between mb-5">
 
     <div>
 
-      <p className="text-sm font-medium text-zinc-400">
-        Bienvenido 👋
+      <p className="text-xs uppercase tracking-wider text-zinc-400 font-bold">
+        Actividad reciente
       </p>
 
-      <h1 className="text-4xl font-black leading-none mt-2">
-        Dashboard
-      </h1>
-
-      <p className="text-sm text-zinc-500 mt-2">
-        {selectedTitle}
-      </p>
+      <h2 className="text-xl font-black mt-1">
+        Últimos gastos
+      </h2>
 
     </div>
 
     <button
 
-      onClick={() => setOpenFab(true)}
+      onClick={() => navigate('/gastos')}
 
-      className="
-        w-14
-        h-14
-
-        rounded-2xl
-
-        bg-primary
-
-        text-white
-
-        flex
-        items-center
-        justify-center
-
-        shadow-lg
-
-        active:scale-95
-
-        transition
-      "
+      className="text-primary text-sm font-semibold"
 
     >
 
-      <Plus size={28} />
+      Ver todos
 
     </button>
 
   </div>
 
-  <ActionStrip
-    onAddExpense={() => {
-      setOpenFab(false);
-      setOpenModal(true);
-    }}
-    onAddIncome={() => {
-      setOpenFab(false);
-      setOpenIngreso(true);
-    }}
-    onOpenReports={() => navigate('/reportes')}
-  />
+  <div className="space-y-3">
 
-</div>
+    {
 
-        {/* FILTROS */}
+      ultimosGastos.length === 0
 
-        <Card className="p-4 sm:p-5">
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              {['year', 'month', 'day'].map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setViewMode(mode)}
-                  className={`rounded-2xl px-3 py-2 text-sm font-semibold transition ${
-                    viewMode === mode ? 'bg-primary text-white' : 'bg-white/5 text-slate-600 hover:bg-primary/10'
-                  }`}
+        ? (
+
+          <EmptyState
+
+            title="Todavía no hay gastos"
+
+            description="Registrá un gasto para comenzar."
+
+          />
+
+        )
+
+        : (
+
+          ultimosGastos.slice(0,5).map(gasto => (
+
+            <motion.div
+
+              key={gasto.id}
+
+              whileTap={{ scale: .98 }}
+
+              className="
+
+                flex
+
+                items-center
+
+                justify-between
+
+                rounded-2xl
+
+                border
+
+                border-zinc-100
+
+                bg-white
+
+                p-3.5
+
+              "
+
+            >
+
+              <div className="flex items-center gap-3">
+
+                <div
+
+                  className="
+
+                    w-10
+
+                    h-10
+
+                    rounded-lg
+
+                    bg-pink-100
+
+                    flex
+
+                    items-center
+
+                    justify-center
+
+                    text-primary
+
+                    font-black
+
+                    shrink-0
+
+                  "
+
                 >
-                  {mode === 'year' ? 'Año' : mode === 'month' ? 'Mes' : 'Día'}
-                </button>
-              ))}
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <div>
-                <label className="block text-sm text-zinc-400 mb-2">Año</label>
-                <select
-                  value={selectedYear}
-                  onChange={(event) => setSelectedYear(Number(event.target.value))}
-                  className="w-full rounded-2xl border border-zinc-200 bg-white/5 px-4 py-3 text-sm text-slate-900"
-                >
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                  {gasto.categoria?.nombre?.charAt(0) || 'G'}
+
+                </div>
+
+                <div>
+
+                  <p className="font-semibold leading-none">
+
+                    {gasto.descripcion}
+
+                  </p>
+
+                  <p className="text-xs text-zinc-400 mt-2">
+
+                    {gasto.categoria?.nombre}
+
+                    {' • '}
+
+                    {gasto.tipo_cuenta?.nombre}
+
+                  </p>
+
+                </div>
+
               </div>
 
-              {viewMode === 'month' && (
-                <div>
-                  <label className="block text-sm text-zinc-400 mb-2">Mes</label>
-                  <select
-                    value={selectedMonth}
-                    onChange={(event) => setSelectedMonth(Number(event.target.value))}
-                    className="w-full rounded-2xl border border-zinc-200 bg-white/5 px-4 py-3 text-sm text-slate-900"
-                  >
-                    {months.map((mes) => (
-                      <option key={mes.value} value={mes.value}>
-                        {mes.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <p className="font-black text-red-500">
 
-              {viewMode === 'day' && (
-                <>
-                  <div>
-                    <label className="block text-sm text-zinc-400 mb-2">Desde</label>
-                    <input
-                      type="date"
-                      value={fechaInicio}
-                      onChange={(event) => setFechaInicio(event.target.value)}
-                      className="w-full rounded-2xl border border-zinc-200 bg-white/5 px-4 py-3 text-sm text-slate-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-zinc-400 mb-2">Hasta</label>
-                    <input
-                      type="date"
-                      value={fechaFin}
-                      onChange={(event) => setFechaFin(event.target.value)}
-                      className="w-full rounded-2xl border border-zinc-200 bg-white/5 px-4 py-3 text-sm text-slate-900"
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </Card>
+                -${Number(gasto.monto).toLocaleString()}
 
-        {/* KPIs */}
+              </p>
 
-        <div className="space-y-4">
+            </motion.div>
 
-  <div
-    onClick={() =>
-      navigate('/movimientos', {
-        state: {
-          viewMode,
-          selectedYear,
-          selectedMonth,
-          fechaInicio,
-          fechaFin,
-        },
-      })
+          ))
+
+        )
+
     }
-  >
-
-    <InsightCard
-
-      title="Balance disponible"
-
-      value={`$${totalBalance.toLocaleString()}`}
-
-      hint="Saldo del período"
-
-      accent="primary"
-
-      icon={<Wallet size={24} />}
-
-    />
 
   </div>
 
-  <div className="grid grid-cols-2 gap-4">
+</Card>
 
-    <div
-      onClick={() =>
-        navigate('/ingresos', {
-          state: {
-            viewMode,
-            selectedYear,
-            selectedMonth,
-            fechaInicio,
-            fechaFin,
-          },
-        })
-      }
-    >
+{/* CUENTAS */}
 
-      <InsightCard
+<Card className="p-3.5">
 
-        title="Ingresos"
+  <div className="mb-5">
 
-        value={`$${totalIngresos.toLocaleString()}`}
+    <p className="text-xs uppercase tracking-wider text-zinc-400 font-bold">
+      Disponibilidad
+    </p>
 
-        hint="Acumulado"
-
-        accent="success"
-
-        icon={<TrendingUp size={22} />}
-
-      />
-
-    </div>
-
-    <div
-      onClick={() =>
-        navigate('/gastos', {
-          state: {
-            viewMode,
-            selectedYear,
-            selectedMonth,
-            fechaInicio,
-            fechaFin,
-          },
-        })
-      }
-    >
-
-      <InsightCard
-
-        title="Gastos"
-
-        value={`$${totalGastos.toLocaleString()}`}
-
-        hint="Acumulado"
-
-        accent="danger"
-
-        icon={<TrendingDown size={22} />}
-
-      />
-
-    </div>
+    <h2 className="text-xl font-black mt-1">
+      Tus cuentas
+    </h2>
 
   </div>
 
-</div>
-
-       
-
-       <Card>
-
-  <div className="flex items-center justify-between mb-6">
-
-    <div>
-
-      <p className="text-xs uppercase tracking-widest text-zinc-400 font-bold">
-        Tus cuentas
-      </p>
-
-      <h2 className="text-2xl font-black mt-1">
-        Disponibilidad
-      </h2>
-
-    </div>
-
-  </div>
-
-  <div className="space-y-4">
+  <div className="space-y-3">
 
     {
 
       cuentasPorTipo.map(cuenta => {
 
         const saldo =
-          Math.max(
-            cuenta.ingresos -
-            cuenta.gastos,
-            0
-          );
+          cuenta.ingresos -
+          cuenta.gastos;
 
         const color =
 
@@ -602,100 +902,93 @@ function DashboardPage() {
 
             key={cuenta.cuenta}
 
-            whileTap={{
-              scale: 0.98,
-            }}
+            whileTap={{ scale:.98 }}
 
             className="
-              rounded-3xl
+
+              flex
+
+              items-center
+
+              justify-between
+
+              rounded-2xl
 
               border
 
               border-zinc-100
 
-              p-5
+              p-3.5
 
-              bg-white
             "
 
           >
 
-            <div className="flex justify-between">
+            <div className="flex items-center gap-3">
 
-              <div className="flex items-center gap-4">
+              <div
 
-                <div
+                className={`
 
-                  className={`
-                    w-14
-                    h-14
+                  w-10
 
-                    rounded-2xl
+                  h-10
 
-                    flex
+                  rounded-lg
 
-                    items-center
+                  flex
 
-                    justify-center
+                  items-center
 
-                    font-black
+                  justify-center
 
-                    ${color}
-                  `}
+                  font-black
 
-                >
+                  ${color}
 
-                  {cuenta.cuenta[0]}
+                `}
 
-                </div>
+              >
 
-                <div>
-
-                  <p className="font-bold">
-
-                    {cuenta.cuenta}
-
-                  </p>
-
-                  <p className="text-sm text-zinc-400 mt-1">
-
-                    Ingresos
-
-                    {' '}
-
-                    ${cuenta.ingresos.toLocaleString()}
-
-                  </p>
-
-                  <p className="text-sm text-zinc-400">
-
-                    Gastos
-
-                    {' '}
-
-                    ${cuenta.gastos.toLocaleString()}
-
-                  </p>
-
-                </div>
+                {cuenta.cuenta[0]}
 
               </div>
 
-              <div className="text-right">
+              <div>
 
-                <p className="text-xs text-zinc-400">
+                <p className="font-semibold">
 
-                  Disponible
+                  {cuenta.cuenta}
 
                 </p>
 
-                <h3 className="text-xl font-black mt-2">
+                <p className="text-xs text-zinc-400 mt-1">
 
-                  ${saldo.toLocaleString()}
+                  +${cuenta.ingresos.toLocaleString()}
 
-                </h3>
+                  {' / '}
+
+                  -${cuenta.gastos.toLocaleString()}
+
+                </p>
 
               </div>
+
+            </div>
+
+            <div className="text-right">
+
+              <p className="text-xs text-zinc-400">
+
+                Disponible
+
+              </p>
+
+              <p className="font-black text-lg">
+
+                ${saldo.toLocaleString()}
+
+              </p>
 
             </div>
 
@@ -710,174 +1003,200 @@ function DashboardPage() {
   </div>
 
 </Card>
-      
-      
-  {/* GRAFICO */}
 
-        <Card>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-5">
-            <div>
-              <h2 className="text-xl font-bold">Evolución</h2>
-              <p className="text-zinc-400 text-sm">{selectedTitle}</p>
-            </div>
-            <div className="text-sm text-zinc-500">
-              Selecciona rango para ver ingresos y gastos por {viewMode === 'year' ? 'mes' : 'día'}.
-            </div>
-          </div>
+{/* GRAFICO */}
 
-          <div className="h-[380px]">
-            <ResponsiveContainer>
-              <BarChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f472b6" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#fbcfe8" stopOpacity={0.5} />
-                  </linearGradient>
-                </defs>
+<Card className="p-3.5">
 
-                <CartesianGrid vertical={false} stroke="#f9d7e7" strokeDasharray="3 3" />
-                <XAxis dataKey="label" stroke="#9ca3af" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                <Tooltip
-                  cursor={{ fill: 'rgba(244, 114, 182, 0.12)' }}
-                  contentStyle={{
-                    background: '#ffffff',
-                    border: '1px solid rgba(236, 72, 153, 0.15)',
-                    borderRadius: 16,
-                    boxShadow: '0 10px 30px rgba(219, 39, 119, 0.1)',
-                    color: '#111827',
-                  }}
-                  labelStyle={{ color: '#6b7280' }}
-                />
+  <div className="flex items-center justify-between mb-5">
 
-                <Bar dataKey="gastos" fill="url(#barGradient)" radius={[12, 12, 0, 0]} barSize={34} background={{ fill: '#fff0f6' }}>
-                  <LabelList dataKey="gastos" position="top" formatter={(value) => `$${Number(value).toLocaleString()}`} style={{ fill: '#9d174d', fontSize: 12, fontWeight: 700 }} />
-                </Bar>
-                <Bar dataKey="ingresos" fill="#34d399" radius={[12, 12, 0, 0]} barSize={34} background={{ fill: '#ecfdf5' }}>
-                  <LabelList dataKey="ingresos" position="top" formatter={(value) => `$${Number(value).toLocaleString()}`} style={{ fill: '#166534', fontSize: 12, fontWeight: 700 }} />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+    <div>
 
+      <p className="text-xs uppercase tracking-wider text-zinc-400 font-bold">
+        Tendencia
+      </p>
 
-        {/* ULTIMOS GASTOS */}
+      <h2 className="text-xl font-black mt-1">
+        Evolución
+      </h2>
 
-        <Card className="p-4 sm:p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Últimos gastos</h2>
-          </div>
+    </div>
 
-          <div className="space-y-4">
-            {ultimosGastos.length === 0 ? (
-              <EmptyState
-                title="Aún no hay gastos"
-                description="Registra tu primer movimiento para ver tu historial y comenzar a analizar tus finanzas."
-              />
-            ) : (
-              ultimosGastos.map((gasto) => (
-                <motion.div
-                  key={gasto.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="
-bg-white
+    <span className="text-xs text-zinc-400">
 
-rounded-3xl
+      {selectedTitle}
 
-border
-
-border-zinc-100
-
-p-5
-
-shadow-sm
-
-flex
-
-items-center
-
-justify-between
-"
-                >
-                  <div className="flex items-center gap-4">
-
-  <div
-
-    className="
-      w-14
-      h-14
-
-      rounded-2xl
-
-      bg-pink-100
-
-      flex
-
-      items-center
-
-      justify-center
-
-      text-primary
-
-      font-black
-    "
-
-  >
-
-    {gasto.categoria?.nombre?.charAt(0) || "G"}
+    </span>
 
   </div>
 
-  <div>
+  <div className="h-[280px]">
 
-    <p className="font-bold">
+    <ResponsiveContainer width="100%" height="100%">
 
-      {gasto.descripcion}
+      <BarChart
 
-    </p>
+        data={chartData}
 
-    <p className="text-sm text-zinc-400 mt-1">
+        margin={{
 
-      {gasto.categoria?.nombre}
+          top: 10,
 
-    </p>
+          left: -20,
 
-    <p className="text-xs text-zinc-400 mt-1">
+          right: 5,
 
-      {gasto.tipo_cuenta?.nombre}
+          bottom: 0,
 
-    </p>
+        }}
+
+      >
+
+        <defs>
+
+          <linearGradient
+
+            id="barGradient"
+
+            x1="0"
+
+            y1="0"
+
+            x2="0"
+
+            y2="1"
+
+          >
+
+            <stop
+
+              offset="0%"
+
+              stopColor="#ec4899"
+
+            />
+
+            <stop
+
+              offset="100%"
+
+              stopColor="#f9a8d4"
+
+            />
+
+          </linearGradient>
+
+        </defs>
+
+        <CartesianGrid
+
+          vertical={false}
+
+          stroke="#f3f4f6"
+
+          strokeDasharray="3 3"
+
+        />
+
+        <XAxis
+
+          dataKey="label"
+
+          tickLine={false}
+
+          axisLine={false}
+
+          tick={{
+
+            fontSize: 11,
+
+            fill: '#71717a',
+
+          }}
+
+        />
+
+        <Tooltip
+
+          cursor={{
+
+            fill:'rgba(236,72,153,.08)'
+
+          }}
+
+          contentStyle={{
+
+            borderRadius:16,
+
+            border:'none',
+
+            boxShadow:'0 10px 30px rgba(0,0,0,.08)',
+
+            background:'#fff'
+
+          }}
+
+        />
+
+        <Bar
+
+          dataKey="ingresos"
+
+          name="Ingresos"
+
+          fill="#22c55e"
+
+          radius={[10,10,0,0]}
+
+          barSize={18}
+
+          animationDuration={700}
+
+        />
+
+        <Bar
+
+          dataKey="gastos"
+
+          name="Gastos"
+
+          fill="url(#barGradient)"
+
+          radius={[10,10,0,0]}
+
+          barSize={18}
+
+          animationDuration={700}
+
+        />
+
+      </BarChart>
+
+    </ResponsiveContainer>
 
   </div>
 
-</div>
+  <div className="flex justify-center gap-6 mt-4">
 
-<div className="text-right">
+    <div className="flex items-center gap-2 text-xs text-zinc-500">
 
-  <p className="text-red-500 font-black text-xl">
+      <span className="w-3 h-3 rounded-full bg-emerald-500" />
 
-    -$
+      Ingresos
 
-    {Number(gasto.monto).toLocaleString()}
+    </div>
 
-  </p>
+    <div className="flex items-center gap-2 text-xs text-zinc-500">
 
-</div>
-                </motion.div>
-              ))
-            )}
-          </div>
-        </Card>
+      <span className="w-3 h-3 rounded-full bg-pink-500" />
 
-        {/* FAB */}
+      Gastos
 
-        <button
-          onClick={() => setOpenFab(true)}
-          className="fixed bottom-24 right-5 w-16 h-16 rounded-full bg-primary shadow-pink flex items-center justify-center z-50"
-        >
-          <Plus size={30} />
-        </button>
+    </div>
+
+  </div>
+
+</Card>
       </div>
     </>
   );
