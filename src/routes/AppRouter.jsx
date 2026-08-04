@@ -11,6 +11,7 @@ import DashboardPage from '../pages/DashboardPage';
 import GastosPage from '../pages/GastosPage';
 import IngresosPage from '../pages/IngresosPage';
 import MovimientosPage from '../pages/MovimientosPage';
+import ReportsPage from '../pages/ReportsPage';
 
 import AppLayout from '../components/layout/AppLayout';
 
@@ -82,6 +83,17 @@ function AppRouter() {
             <ProtectedRoute>
               <AppLayout>
                 <MovimientosPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reportes"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <ReportsPage />
               </AppLayout>
             </ProtectedRoute>
           }

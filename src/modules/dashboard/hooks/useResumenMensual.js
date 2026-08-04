@@ -26,13 +26,11 @@ const obtenerResumen = async () => {
 };
 
 export function useResumenMensual() {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
 
   return useQuery({
-
-    queryKey: ['resumen-mensual'],
-
+    queryKey: ['resumen-mensual', usuario?.id],
     queryFn: obtenerResumen,
-
+    enabled: Boolean(usuario?.id),
   });
-
 }

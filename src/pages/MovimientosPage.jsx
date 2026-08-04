@@ -74,8 +74,8 @@ function MovimientosPage() {
     fechaHasta: fechaFiltro.fechaHasta,
   });
 
-  const gastos = gastosData?.resultados || [];
-  const ingresos = ingresosData?.resultados || [];
+  const gastos = useMemo(() => gastosData?.resultados || [], [gastosData?.resultados]);
+  const ingresos = useMemo(() => ingresosData?.resultados || [], [ingresosData?.resultados]);
   const isLoading = isLoadingGastos || isLoadingIngresos;
 
   const movimientosFiltrados = useMemo(() => {

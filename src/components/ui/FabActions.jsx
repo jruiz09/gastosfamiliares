@@ -101,6 +101,8 @@ function FabActions({
               border-red-500/20
               p-5
               rounded-3xl
+              shadow-sm
+              active:scale-[0.99]
             "
           >
 
@@ -164,6 +166,8 @@ function FabActions({
               border-green-500/20
               p-5
               rounded-3xl
+              shadow-sm
+              active:scale-[0.99]
             "
           >
 

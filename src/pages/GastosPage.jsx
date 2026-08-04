@@ -4,11 +4,9 @@ import { motion } from 'framer-motion';
 import {
   Search,
   Filter,
-  Calendar,
   X,
   ChevronLeft,
   ChevronRight,
-  Plus,
 } from 'lucide-react';
 import { useGastos } from '../modules/gastos/hooks/useGastos';
 import { useCategorias } from '../modules/gastos/hooks/useCategorias';
@@ -16,7 +14,7 @@ import { useTiposCuenta } from '../modules/gastos/hooks/useTiposCuenta';
 import GastoCard from '../modules/gastos/components/GastoCard';
 import Card from '../components/ui/Card';
 import AgregarGastoModal from '../modules/gastos/components/AgregarGastoModal';
-import FabActions from '../components/ui/FabActions';
+import { getMonthDateRange } from '../utils/dateUtils';
 import {
   PieChart,
   Pie,
@@ -40,7 +38,6 @@ function GastosPage() {
   const [pagina, setPagina] = useState(1);
   const [busqueda, setBusqueda] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [openFab, setOpenFab] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [gastoSeleccionado, setGastoSeleccionado] = useState(null);
 
@@ -71,20 +68,10 @@ const fechaFiltro = useMemo(() => {
   }
 
   if (viewMode === 'month') {
-
-    const mes = String(
-      selectedMonth
-    ).padStart(2, '0');
-
-    const ultimoDia = new Date(
-      selectedYear,
-      selectedMonth,
-      0
-    ).getDate();
-
+    const { fechaDesde, fechaHasta } = getMonthDateRange(selectedYear, selectedMonth);
     return {
-      fechaDesde: `${selectedYear}-${mes}-01`,
-      fechaHasta: `${selectedYear}-${mes}-${ultimoDia}`,
+      fechaDesde,
+      fechaHasta,
     };
   }
 
@@ -102,13 +89,18 @@ const fechaFiltro = useMemo(() => {
 ]);
 
 
-useEffect(() => {
-
+const resetPagina = useCallback(() => {
   setPagina(1);
+}, []);
 
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  resetPagina();
 }, [
+  resetPagina,
   categoriaSeleccionada,
   tipoCuentaSeleccionado,
+  viewMode,
   selectedYear,
   selectedMonth,
   fechaInicio,
@@ -129,15 +121,15 @@ useEffect(() => {
   const { data: tiposCuenta = [] } = useTiposCuenta();
 
   // Filtrar gastos localmente por búsqueda
-const gastosFiltrados =
-  gastos?.resultados?.filter(
-    gasto =>
-      (gasto.descripcion || '')
-        .toLowerCase()
-        .includes(
-          busqueda.toLowerCase()
-        )
-  ) || [];
+const gastosFiltrados = useMemo(() => {
+    return (
+      gastos?.resultados?.filter((gasto) =>
+        (gasto.descripcion || '')
+          .toLowerCase()
+          .includes(busqueda.toLowerCase())
+      ) || []
+    );
+  }, [gastos?.resultados, busqueda]);
 
 const gastosPorCategoria = useMemo(() => {
   const resumen = {};
@@ -219,13 +211,13 @@ const tieneFiltrosActivos =
         <div className="p-4 max-w-md mx-auto">
           {/* Título */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="text-3xl font-bold text-slate-900 mb-0">Gastos</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-0">Gastos</h1>
             <button
               onClick={() => {
   setGastoSeleccionado(null);
   setOpenModal(true);
 }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-white shadow-pink hover:bg-pink-500 transition-colors text-sm font-semibold"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-white shadow-[0_16px_40px_rgba(236,72,153,0.20)] hover:bg-pink-500 transition-colors text-sm font-semibold"
             >
               + Nuevo gasto
             </button>

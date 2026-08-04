@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, CreditCard, DollarSign, LogOut } from 'lucide-react';
+import { Home, CreditCard, DollarSign, BarChart3, LogOut } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
 function Sidebar() {
@@ -25,13 +25,14 @@ function Sidebar() {
         top-0
         w-[260px]
         h-screen
-        bg-card
+        bg-card/95
         border-r
-        border-pink-100
+        border-pink-100/80
         p-5
         flex
         flex-col
         justify-between
+        backdrop-blur-xl
       "
     >
 
@@ -59,6 +60,10 @@ function Sidebar() {
           <NavLink to="/ingresos" className={linkClass}>
             <DollarSign size={18} />
             Ingresos
+          </NavLink>
+          <NavLink to="/reportes" className={linkClass}>
+            <BarChart3 size={18} />
+            Informes
           </NavLink>
         </nav>
       </div>

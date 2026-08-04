@@ -26,35 +26,44 @@ function AgregarGastoModal({
     observaciones: "",
   });
 
-  useEffect(() => {
-    if (gasto) {
-      setForm({
-        descripcion: gasto.descripcion || "",
-        monto: gasto.monto || "",
-        fecha: gasto.fecha
-          ? gasto.fecha.split("T")[0]
+  const getInitialForm = (gastoData) => {
+    if (gastoData) {
+      return {
+        descripcion: gastoData.descripcion || "",
+        monto: gastoData.monto || "",
+        fecha: gastoData.fecha
+          ? gastoData.fecha.split("T")[0]
           : new Date().toISOString().split("T")[0],
         categoria_id:
-          gasto.categoria_id ||
-          gasto.Categoria?.id ||
+          gastoData.categoria_id ||
+          gastoData.Categoria?.id ||
           "",
         tipo_cuenta_id:
-          gasto.tipo_cuenta_id ||
-          gasto.TipoCuenta?.id ||
+          gastoData.tipo_cuenta_id ||
+          gastoData.TipoCuenta?.id ||
           "",
         observaciones:
-          gasto.observaciones || "",
-      });
-    } else {
-      setForm({
-        descripcion: "",
-        monto: "",
-        fecha: new Date().toISOString().split("T")[0],
-        categoria_id: "",
-        tipo_cuenta_id: "",
-        observaciones: "",
-      });
+          gastoData.observaciones || "",
+      };
     }
+
+    return {
+      descripcion: "",
+      monto: "",
+      fecha: new Date().toISOString().split("T")[0],
+      categoria_id: "",
+      tipo_cuenta_id: "",
+      observaciones: "",
+    };
+  };
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setForm(getInitialForm(gasto));
   }, [gasto, open]);
 
   const mutation = useMutation({

@@ -15,13 +15,11 @@ const obtenerUltimosGastos =
   };
 
 export function useUltimosGastos() {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
 
   return useQuery({
-
-    queryKey: ['ultimos-gastos'],
-
+    queryKey: ['ultimos-gastos', usuario?.id],
     queryFn: obtenerUltimosGastos,
-
+    enabled: Boolean(usuario?.id),
   });
-
 }

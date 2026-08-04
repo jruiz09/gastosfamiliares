@@ -304,74 +304,31 @@ function DashboardPage() {
 
       <div className="space-y-6">
 
-      {/* HEADER */}
+        {/* HEADER */}
 
-<div className="space-y-5">
+        <div className="space-y-1">
 
-  <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-black text-primary">
+            Dashboard
+          </h1>
 
-    <div>
+          <p className="text-sm text-zinc-500">
+            Resumen financiero por {viewMode === 'year' ? 'año' : viewMode === 'month' ? 'mes' : 'día'}
+          </p>
 
-      <p className="text-sm font-medium text-zinc-400">
-        Bienvenido 👋
-      </p>
+        </div>
 
-      <h1 className="text-4xl font-black leading-none mt-2">
-        Dashboard
-      </h1>
-
-      <p className="text-sm text-zinc-500 mt-2">
-        {selectedTitle}
-      </p>
-
-    </div>
-
-    <button
-
-      onClick={() => setOpenFab(true)}
-
-      className="
-        w-14
-        h-14
-
-        rounded-2xl
-
-        bg-primary
-
-        text-white
-
-        flex
-        items-center
-        justify-center
-
-        shadow-lg
-
-        active:scale-95
-
-        transition
-      "
-
-    >
-
-      <Plus size={28} />
-
-    </button>
-
-  </div>
-
-  <ActionStrip
-    onAddExpense={() => {
-      setOpenFab(false);
-      setOpenModal(true);
-    }}
-    onAddIncome={() => {
-      setOpenFab(false);
-      setOpenIngreso(true);
-    }}
-    onOpenReports={() => navigate('/reportes')}
-  />
-
-</div>
+        <ActionStrip
+          onAddExpense={() => {
+            setOpenFab(false);
+            setOpenModal(true);
+          }}
+          onAddIncome={() => {
+            setOpenFab(false);
+            setOpenIngreso(true);
+          }}
+          onOpenReports={() => navigate('/reportes')}
+        />
 
         {/* FILTROS */}
 
@@ -453,266 +410,96 @@ function DashboardPage() {
 
         {/* KPIs */}
 
-        <div className="space-y-4">
-
-  <div
-    onClick={() =>
-      navigate('/movimientos', {
-        state: {
-          viewMode,
-          selectedYear,
-          selectedMonth,
-          fechaInicio,
-          fechaFin,
-        },
-      })
-    }
-  >
-
-    <InsightCard
-
-      title="Balance disponible"
-
-      value={`$${totalBalance.toLocaleString()}`}
-
-      hint="Saldo del período"
-
-      accent="primary"
-
-      icon={<Wallet size={24} />}
-
-    />
-
-  </div>
-
-  <div className="grid grid-cols-2 gap-4">
-
-    <div
-      onClick={() =>
-        navigate('/ingresos', {
-          state: {
-            viewMode,
-            selectedYear,
-            selectedMonth,
-            fechaInicio,
-            fechaFin,
-          },
-        })
-      }
-    >
-
-      <InsightCard
-
-        title="Ingresos"
-
-        value={`$${totalIngresos.toLocaleString()}`}
-
-        hint="Acumulado"
-
-        accent="success"
-
-        icon={<TrendingUp size={22} />}
-
-      />
-
-    </div>
-
-    <div
-      onClick={() =>
-        navigate('/gastos', {
-          state: {
-            viewMode,
-            selectedYear,
-            selectedMonth,
-            fechaInicio,
-            fechaFin,
-          },
-        })
-      }
-    >
-
-      <InsightCard
-
-        title="Gastos"
-
-        value={`$${totalGastos.toLocaleString()}`}
-
-        hint="Acumulado"
-
-        accent="danger"
-
-        icon={<TrendingDown size={22} />}
-
-      />
-
-    </div>
-
-  </div>
-
-</div>
-
-       
-
-       <Card>
-
-  <div className="flex items-center justify-between mb-6">
-
-    <div>
-
-      <p className="text-xs uppercase tracking-widest text-zinc-400 font-bold">
-        Tus cuentas
-      </p>
-
-      <h2 className="text-2xl font-black mt-1">
-        Disponibilidad
-      </h2>
-
-    </div>
-
-  </div>
-
-  <div className="space-y-4">
-
-    {
-
-      cuentasPorTipo.map(cuenta => {
-
-        const saldo =
-          Math.max(
-            cuenta.ingresos -
-            cuenta.gastos,
-            0
-          );
-
-        const color =
-
-          cuenta.cuenta === 'Banco'
-
-            ? 'bg-blue-100 text-blue-600'
-
-            : cuenta.cuenta === 'Efectivo'
-
-            ? 'bg-emerald-100 text-emerald-600'
-
-            : 'bg-pink-100 text-primary';
-
-        return (
-
-          <motion.div
-
-            key={cuenta.cuenta}
-
-            whileTap={{
-              scale: 0.98,
-            }}
-
-            className="
-              rounded-3xl
-
-              border
-
-              border-zinc-100
-
-              p-5
-
-              bg-white
-            "
-
-          >
-
-            <div className="flex justify-between">
-
-              <div className="flex items-center gap-4">
-
-                <div
-
-                  className={`
-                    w-14
-                    h-14
-
-                    rounded-2xl
-
-                    flex
-
-                    items-center
-
-                    justify-center
-
-                    font-black
-
-                    ${color}
-                  `}
-
-                >
-
-                  {cuenta.cuenta[0]}
-
-                </div>
-
-                <div>
-
-                  <p className="font-bold">
-
-                    {cuenta.cuenta}
-
-                  </p>
-
-                  <p className="text-sm text-zinc-400 mt-1">
-
-                    Ingresos
-
-                    {' '}
-
-                    ${cuenta.ingresos.toLocaleString()}
-
-                  </p>
-
-                  <p className="text-sm text-zinc-400">
-
-                    Gastos
-
-                    {' '}
-
-                    ${cuenta.gastos.toLocaleString()}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div className="text-right">
-
-                <p className="text-xs text-zinc-400">
-
-                  Disponible
-
-                </p>
-
-                <h3 className="text-xl font-black mt-2">
-
-                  ${saldo.toLocaleString()}
-
-                </h3>
-
-              </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div onClick={() => navigate('/movimientos', { state: { viewMode, selectedYear, selectedMonth, fechaInicio, fechaFin } })}>
+            <InsightCard title="Balance" value={`$${totalBalance.toLocaleString()}`} hint="Saldo actual del período" accent="primary" icon={<Wallet size={18} />} />
+          </div>
+          <div onClick={() => navigate('/ingresos', { state: { viewMode, selectedYear, selectedMonth, fechaInicio, fechaFin } })}>
+            <InsightCard title="Ingresos" value={`$${totalIngresos.toLocaleString()}`} hint="Total registrado" accent="success" icon={<TrendingUp size={18} />} />
+          </div>
+          <div onClick={() => navigate('/gastos', { state: { viewMode, selectedYear, selectedMonth, fechaInicio, fechaFin } })}>
+            <InsightCard title="Gastos" value={`$${totalGastos.toLocaleString()}`} hint="Total registrado" accent="danger" icon={<TrendingDown size={18} />} />
+          </div>
+        </div>
+
+        {/* SALDOS POR CUENTA */}
+
+        <Card className="p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-zinc-400 text-sm">Resumen ejecutivo</p>
+              <h2 className="text-xl font-black mt-1">Presupuesto y ahorro</h2>
             </div>
+            <button
+              type="button"
+              onClick={exportSummary}
+              className="rounded-2xl border border-pink-100 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+            >
+              Exportar CSV
+            </button>
+          </div>
 
-          </motion.div>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl bg-pink-50 p-4">
+              <p className="text-sm text-zinc-500">Presupuesto</p>
+              <p className="text-xl font-black mt-1">${budget.toLocaleString()}</p>
+              <p className="text-sm text-zinc-500 mt-2">{budgetProgress.percent}% usado</p>
+            </div>
+            <div className="rounded-2xl bg-emerald-50 p-4">
+              <p className="text-sm text-zinc-500">Meta de ahorro</p>
+              <p className="text-xl font-black mt-1">${savingsGoal.toLocaleString()}</p>
+              <p className="text-sm text-zinc-500 mt-2">{savingsProgress.percent}% alcanzado</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-sm text-zinc-500">Restante</p>
+              <p className="text-xl font-black mt-1">${Math.max(budgetProgress.remaining, 0).toLocaleString()}</p>
+              <p className="text-sm text-zinc-500 mt-2">{budgetProgress.isOverBudget ? 'Superaste el presupuesto' : 'Dentro del plan'}</p>
+            </div>
+          </div>
+        </Card>
 
-        );
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {cuentasPorTipo.map((cuenta) => (
+            <motion.div key={cuenta.cuenta} whileHover={{ scale: 1.02 }}>
+              <Card className="p-4 sm:p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-zinc-400 text-sm">{cuenta.cuenta}</p>
+                    <p className="text-2xl font-black mt-3">
+                      ${Math.max(cuenta.ingresos - cuenta.gastos, 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-zinc-500 mt-2">
+                      {cuenta.ingresos.toLocaleString()} ingreso · {cuenta.gastos.toLocaleString()} egreso
+                    </p>
+                  </div>
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                    style={{
+                      background:
+                        cuenta.cuenta === 'Efectivo'
+                          ? 'rgba(34,197,94,0.12)'
+                          : cuenta.cuenta === 'Banco'
+                          ? 'rgba(59,130,246,0.12)'
+                          : 'rgba(236,72,153,0.12)',
+                    }}
+                  >
+                    <span className="text-sm font-black text-slate-900">{cuenta.cuenta[0]}</span>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
 
-      })
+        <BudgetPanel gastos={ultimosGastos} />
 
-    }
+        <RecommendationCard
+          title="Recomendación básica"
+          description={totalBalance > 0 ? 'Tu flujo sigue positivo. Mantener un fondo de reserva mensual puede ayudarte a reducir estrés financiero.' : 'El balance está bajo. Prioriza controlar los gastos variables esta semana para estabilizar el flujo.'}
+          action="Ver más"
+        />
 
-  </div>
-
-</Card>
-      
-      
-  {/* GRAFICO */}
+        {/* GRAFICO */}
 
         <Card>
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-5">
@@ -725,7 +512,7 @@ function DashboardPage() {
             </div>
           </div>
 
-          <div className="h-[380px]">
+          <div className="h-[320px]">
             <ResponsiveContainer>
               <BarChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                 <defs>
@@ -749,17 +536,16 @@ function DashboardPage() {
                   labelStyle={{ color: '#6b7280' }}
                 />
 
-                <Bar dataKey="gastos" fill="url(#barGradient)" radius={[12, 12, 0, 0]} barSize={34} background={{ fill: '#fff0f6' }}>
+                <Bar dataKey="gastos" fill="url(#barGradient)" radius={[12, 12, 0, 0]} barSize={26} background={{ fill: '#fff0f6' }}>
                   <LabelList dataKey="gastos" position="top" formatter={(value) => `$${Number(value).toLocaleString()}`} style={{ fill: '#9d174d', fontSize: 12, fontWeight: 700 }} />
                 </Bar>
-                <Bar dataKey="ingresos" fill="#34d399" radius={[12, 12, 0, 0]} barSize={34} background={{ fill: '#ecfdf5' }}>
+                <Bar dataKey="ingresos" fill="#34d399" radius={[12, 12, 0, 0]} barSize={26} background={{ fill: '#ecfdf5' }}>
                   <LabelList dataKey="ingresos" position="top" formatter={(value) => `$${Number(value).toLocaleString()}`} style={{ fill: '#166534', fontSize: 12, fontWeight: 700 }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
-
 
         {/* ULTIMOS GASTOS */}
 
@@ -780,90 +566,20 @@ function DashboardPage() {
                   key={gasto.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="
-bg-white
-
-rounded-3xl
-
-border
-
-border-zinc-100
-
-p-5
-
-shadow-sm
-
-flex
-
-items-center
-
-justify-between
-"
+                  className="flex items-center justify-between bg-white/5 rounded-2xl p-4"
                 >
-                  <div className="flex items-center gap-4">
-
-  <div
-
-    className="
-      w-14
-      h-14
-
-      rounded-2xl
-
-      bg-pink-100
-
-      flex
-
-      items-center
-
-      justify-center
-
-      text-primary
-
-      font-black
-    "
-
-  >
-
-    {gasto.categoria?.nombre?.charAt(0) || "G"}
-
-  </div>
-
-  <div>
-
-    <p className="font-bold">
-
-      {gasto.descripcion}
-
-    </p>
-
-    <p className="text-sm text-zinc-400 mt-1">
-
-      {gasto.categoria?.nombre}
-
-    </p>
-
-    <p className="text-xs text-zinc-400 mt-1">
-
-      {gasto.tipo_cuenta?.nombre}
-
-    </p>
-
-  </div>
-
-</div>
-
-<div className="text-right">
-
-  <p className="text-red-500 font-black text-xl">
-
-    -$
-
-    {Number(gasto.monto).toLocaleString()}
-
-  </p>
-
-</div>
+                  <div>
+                    <p className="font-semibold">{gasto.descripcion}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+                        {gasto.categoria?.nombre}
+                      </span>
+                      <span className="text-xs text-zinc-400">{gasto.tipo_cuenta?.nombre}</span>
+                    </div>
+                  </div>
+                  <p className="text-red-400 font-bold text-lg">
+                    ${Number(gasto.monto).toLocaleString()}
+                  </p>
                 </motion.div>
               ))
             )}

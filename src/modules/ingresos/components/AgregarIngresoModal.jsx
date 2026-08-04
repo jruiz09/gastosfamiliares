@@ -56,59 +56,37 @@ function AgregarIngresoModal({
 
     });
 
-  useEffect(() => {
-
-    if (ingreso) {
-
-      setForm({
-
-        descripcion:
-          ingreso.descripcion || '',
-
-        monto:
-          ingreso.monto || '',
-
-        fecha:
-          ingreso.fecha
-            ? ingreso.fecha.split('T')[0]
-            : new Date()
-                .toISOString()
-                .split('T')[0],
-
-        categoria_id:
-          ingreso.categoria_id || '',
-
-        tipo_cuenta_id:
-          ingreso.tipo_cuenta_id || '',
-
-        observaciones:
-          ingreso.observaciones || '',
-
-      });
-
-    } else {
-
-      setForm({
-
-        descripcion: '',
-
-        monto: '',
-
-        fecha:
-          new Date()
-            .toISOString()
-            .split('T')[0],
-
-        categoria_id: '',
-
-        tipo_cuenta_id: '',
-
-        observaciones: '',
-
-      });
-
+  const getInitialForm = (ingresoData) => {
+    if (ingresoData) {
+      return {
+        descripcion: ingresoData.descripcion || '',
+        monto: ingresoData.monto || '',
+        fecha: ingresoData.fecha
+          ? ingresoData.fecha.split('T')[0]
+          : new Date().toISOString().split('T')[0],
+        categoria_id: ingresoData.categoria_id || '',
+        tipo_cuenta_id: ingresoData.tipo_cuenta_id || '',
+        observaciones: ingresoData.observaciones || '',
+      };
     }
 
+    return {
+      descripcion: '',
+      monto: '',
+      fecha: new Date().toISOString().split('T')[0],
+      categoria_id: '',
+      tipo_cuenta_id: '',
+      observaciones: '',
+    };
+  };
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setForm(getInitialForm(ingreso));
   }, [ingreso, open]);
 
   const mutation = useMutation({

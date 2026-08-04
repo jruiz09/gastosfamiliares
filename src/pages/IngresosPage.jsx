@@ -6,6 +6,7 @@ import { Search, Plus, Filter } from 'lucide-react';
 import Card from '../components/ui/Card';
 import AgregarIngresoModal from '../modules/ingresos/components/AgregarIngresoModal';
 import { useIngresos } from '../modules/ingresos/hooks/useIngresos';
+import { getMonthDateRange } from '../utils/dateUtils';
 import { useCategorias } from '../modules/gastos/hooks/useCategorias';
 import { useTiposCuenta } from '../modules/gastos/hooks/useTiposCuenta';
 
@@ -44,10 +45,10 @@ const handleEditarIngreso = (ingreso) => {
       };
     }
     if (viewMode === 'month') {
-      const mesFormateado = String(selectedMonth).padStart(2, '0');
+      const { fechaDesde, fechaHasta } = getMonthDateRange(selectedYear, selectedMonth);
       return {
-        fechaDesde: `${selectedYear}-${mesFormateado}-01`,
-        fechaHasta: `${selectedYear}-${mesFormateado}-31`,
+        fechaDesde,
+        fechaHasta,
       };
     }
     return {
@@ -101,7 +102,7 @@ const handleEditarIngreso = (ingreso) => {
         <div className="p-4 max-w-md mx-auto">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Ingresos</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Ingresos</h1>
               <p className="text-slate-500">Registra y revisa tus ingresos recientes.</p>
             </div>
 
@@ -110,7 +111,7 @@ const handleEditarIngreso = (ingreso) => {
   setIngresoSeleccionado(null);
   setOpenModal(true);
 }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-white shadow-pink hover:bg-pink-500 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-white shadow-[0_16px_40px_rgba(236,72,153,0.20)] hover:bg-pink-500 transition-colors"
             >
               <Plus size={18} />
               Nuevo ingreso
@@ -280,7 +281,7 @@ const handleEditarIngreso = (ingreso) => {
         </div>
       </motion.div>
 
-      <div className="p-4 max-w-md mx-auto space-y-4">
+      <div className="p-4 max-w-4xl mx-auto space-y-4">
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (

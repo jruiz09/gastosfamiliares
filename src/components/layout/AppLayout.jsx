@@ -35,16 +35,16 @@ function AppLayout({ children }) {
       {/* Mobile */}
 
       <div className="md:hidden fixed inset-x-0 top-0 z-50 bg-dark/95 backdrop-blur-xl border-b border-pink-100">
-        <div className="max-w-md mx-auto px-4 py-4">
+        <div className="max-w-md mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-pink-500 font-semibold">
+              <p className="text-[11px] uppercase tracking-[0.35em] text-pink-500 font-semibold">
                 Gastos Familiares
               </p>
             </div>
             <button
               onClick={handleLogout}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/95 text-slate-900 shadow-sm shadow-slate-200 transition hover:bg-slate-100"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/95 text-slate-900 shadow-sm shadow-slate-200 transition hover:bg-slate-100 active:scale-95"
               aria-label="Cerrar sesión"
             >
               <LogOut size={20} />
@@ -59,9 +59,11 @@ function AppLayout({ children }) {
       <main
         className="
           md:ml-[260px]
-          p-5
-          pt-[138px]
+          px-4
+          py-4
+          pt-[128px]
           pb-28
+          md:px-5
           md:pt-5
         "
       >

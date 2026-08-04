@@ -54,11 +54,13 @@ export function useGastos({
   busqueda = null,
   enabled = true,
 } = {}) {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
 
   return useQuery({
 
     queryKey: [
       'gastos',
+      usuario?.id,
       pagina,
       limite,
       categoria,
@@ -79,7 +81,7 @@ export function useGastos({
         busqueda,
       }),
 
-    enabled,
+    enabled: enabled && Boolean(usuario?.id),
 
     staleTime: 1000 * 60 * 5,
 

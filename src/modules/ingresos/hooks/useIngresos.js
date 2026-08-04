@@ -31,9 +31,12 @@ export function useIngresos({
   tipoCuenta = null,
   enabled = true,
 } = {}) {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+
   return useQuery({
     queryKey: [
       'ingresos',
+      usuario?.id,
       pagina,
       limite,
       categoria,
@@ -50,6 +53,6 @@ export function useIngresos({
         fechaHasta,
         tipoCuenta,
       }),
-    enabled,
+    enabled: enabled && Boolean(usuario?.id),
   });
 }
