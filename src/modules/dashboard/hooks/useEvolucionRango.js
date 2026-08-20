@@ -31,6 +31,8 @@ export function useEvolucionRango(fechaInicio, fechaFin) {
 
     enabled: Boolean(fechaInicio) && Boolean(fechaFin),
 
+    placeholderData: (previousData) => previousData,
+
   });
 
 }

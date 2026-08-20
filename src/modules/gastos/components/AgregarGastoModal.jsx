@@ -250,6 +250,13 @@ function AgregarGastoModal({
             ))}
           </select>
 
+          <textarea
+            placeholder="Observaciones (opcional)"
+            rows={3}
+            {...register("observaciones")}
+            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900 resize-none"
+          />
+
           <button
             type="submit"
             disabled={mutation.isPending || !isValid}

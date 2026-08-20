@@ -31,6 +31,8 @@ export function useEvolucionMensual(anio, mes) {
 
     enabled: Boolean(anio) && Boolean(mes),
 
+    placeholderData: (previousData) => previousData,
+
   });
 
 }

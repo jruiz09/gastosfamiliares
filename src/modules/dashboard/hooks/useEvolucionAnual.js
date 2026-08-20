@@ -30,6 +30,8 @@ export function useEvolucionAnual(anio) {
 
     enabled: Boolean(anio),
 
+    placeholderData: (previousData) => previousData,
+
   });
 
 }

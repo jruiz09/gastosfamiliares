@@ -9,7 +9,8 @@ import {
   Wallet,
   TrendingUp,
   TrendingDown,
-  Plus
+  Plus,
+  Download,
 } from 'lucide-react';
 
 import {
@@ -19,17 +20,14 @@ import {
   XAxis,
   Tooltip,
   CartesianGrid,
-  LabelList,
 } from 'recharts';
 
 import { motion } from 'framer-motion';
 
 import Card from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
-import BudgetPanel from '../components/ui/BudgetPanel';
 import InsightCard from '../components/ui/InsightCard';
 import ActionStrip from '../components/ui/ActionStrip';
-import RecommendationCard from '../components/ui/RecommendationCard';
 import { getMonthDateRange } from '../utils/dateUtils';
 import { calculateProgress, buildSummaryCsv } from '../utils/financeUtils';
 
@@ -593,6 +591,30 @@ function DashboardPage() {
             }
 
           </div>
+
+          <button
+            type="button"
+            onClick={exportSummary}
+            className="
+              w-full
+              flex
+              items-center
+              justify-center
+              gap-2
+              rounded-lg
+              bg-primary/10
+              text-primary
+              font-semibold
+              text-sm
+              py-3
+              transition
+              hover:bg-primary/20
+              active:scale-95
+            "
+          >
+            <Download size={16} />
+            Exportar CSV
+          </button>
 
         </div>
 
