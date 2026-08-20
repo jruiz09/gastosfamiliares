@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clienteAxios from '../../../api/clienteAxios';
 
 const obtenerGastos = async ({
@@ -90,5 +90,20 @@ export function useGastos({
 
     refetchOnWindowFocus: false,
 
+  });
+}
+
+export function useEliminarGasto() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => clienteAxios.delete(`/gastos/${id}`),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gastos'] });
+      queryClient.invalidateQueries({ queryKey: ['ultimos-gastos'] });
+      queryClient.invalidateQueries({ queryKey: ['resumen-mensual'] });
+      queryClient.invalidateQueries({ queryKey: ['evolucion-anual'] });
+    },
   });
 }

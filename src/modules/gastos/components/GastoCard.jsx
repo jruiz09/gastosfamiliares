@@ -14,8 +14,8 @@ function GastoCard({
   descripcion,
   monto,
   fecha,
-  Categoria,
-  TipoCuenta,
+  categoria,
+  tipo_cuenta,
   Usuario,
   onDelete,
   onEdit,
@@ -88,17 +88,17 @@ function GastoCard({
 
             <div className="flex flex-wrap gap-2 mb-3">
 
-              {Categoria && (
+              {categoria && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                   <Tag size={12} />
-                  {Categoria.nombre}
+                  {categoria.nombre}
                 </span>
               )}
 
-              {TipoCuenta && (
+              {tipo_cuenta && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium">
                   <Wallet size={12} />
-                  {TipoCuenta.nombre}
+                  {tipo_cuenta.nombre}
                 </span>
               )}
 

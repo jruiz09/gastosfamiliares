@@ -71,6 +71,8 @@ function AppLayout({ children }) {
 
       </main>
 
+      <BottomNav />
+
     </div>
 
   );

@@ -1,9 +1,57 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import clienteAxios from "../../../api/clienteAxios";
 import { useCategorias } from "../hooks/useCategorias";
 import { useTiposCuenta } from "../hooks/useTiposCuenta";
+
+const gastoSchema = z.object({
+  descripcion: z
+    .string()
+    .trim()
+    .min(1, "Ingresá una descripción"),
+  monto: z.coerce
+    .number({ invalid_type_error: "Ingresá un monto" })
+    .positive("El monto debe ser mayor a 0"),
+  fecha: z.string().min(1, "Elegí una fecha"),
+  categoria_id: z.string().optional(),
+  tipo_cuenta_id: z.string().optional(),
+  observaciones: z.string().optional(),
+});
+
+function getInitialForm(gastoData) {
+  if (gastoData) {
+    return {
+      descripcion: gastoData.descripcion || "",
+      monto: gastoData.monto || "",
+      fecha: gastoData.fecha
+        ? gastoData.fecha.split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      categoria_id:
+        gastoData.categoria_id ||
+        gastoData.Categoria?.id ||
+        "",
+      tipo_cuenta_id:
+        gastoData.tipo_cuenta_id ||
+        gastoData.TipoCuenta?.id ||
+        "",
+      observaciones:
+        gastoData.observaciones || "",
+    };
+  }
+
+  return {
+    descripcion: "",
+    monto: "",
+    fecha: new Date().toISOString().split("T")[0],
+    categoria_id: "",
+    tipo_cuenta_id: "",
+    observaciones: "",
+  };
+}
 
 function AgregarGastoModal({
   open,
@@ -17,57 +65,29 @@ function AgregarGastoModal({
 
   const esEdicion = !!gasto;
 
-  const [form, setForm] = useState({
-    descripcion: "",
-    monto: "",
-    fecha: new Date().toISOString().split("T")[0],
-    categoria_id: "",
-    tipo_cuenta_id: "",
-    observaciones: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    trigger,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: zodResolver(gastoSchema),
+    mode: "onChange",
+    defaultValues: getInitialForm(gasto),
   });
-
-  const getInitialForm = (gastoData) => {
-    if (gastoData) {
-      return {
-        descripcion: gastoData.descripcion || "",
-        monto: gastoData.monto || "",
-        fecha: gastoData.fecha
-          ? gastoData.fecha.split("T")[0]
-          : new Date().toISOString().split("T")[0],
-        categoria_id:
-          gastoData.categoria_id ||
-          gastoData.Categoria?.id ||
-          "",
-        tipo_cuenta_id:
-          gastoData.tipo_cuenta_id ||
-          gastoData.TipoCuenta?.id ||
-          "",
-        observaciones:
-          gastoData.observaciones || "",
-      };
-    }
-
-    return {
-      descripcion: "",
-      monto: "",
-      fecha: new Date().toISOString().split("T")[0],
-      categoria_id: "",
-      tipo_cuenta_id: "",
-      observaciones: "",
-    };
-  };
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setForm(getInitialForm(gasto));
-  }, [gasto, open]);
+    reset(getInitialForm(gasto));
+    trigger();
+  }, [gasto, open, reset, trigger]);
 
   const mutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (form) => {
       if (esEdicion) {
         return clienteAxios.put(
           `/gastos/${gasto.id}`,
@@ -100,9 +120,18 @@ function AgregarGastoModal({
 
       onClose();
     },
+
+    onError: () => {
+      // El mensaje se muestra leyendo mutation.isError / mutation.error abajo.
+    },
   });
 
   if (!open) return null;
+
+  const errorMessage = mutation.isError
+    ? mutation.error?.response?.data?.mensaje ||
+      "No pudimos guardar el gasto. Probá de nuevo."
+    : null;
 
   return (
     <div
@@ -137,57 +166,56 @@ function AgregarGastoModal({
               : "Nuevo gasto 💸"}
           </h2>
 
-          <button onClick={onClose}>
+          <button type="button" onClick={onClose}>
             <X />
           </button>
         </div>
 
-        <div className="space-y-4">
-          <input
-            placeholder="Descripción"
-            value={form.descripcion}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                descripcion: e.target.value,
-              })
-            }
-            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
-          />
+        {errorMessage && (
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl px-4 py-3 mb-4 text-sm">
+            {errorMessage}
+          </div>
+        )}
 
-          <input
-            type="number"
-            placeholder="Monto"
-            value={form.monto}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                monto: e.target.value,
-              })
-            }
-            className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
-          />
+        <form
+          onSubmit={handleSubmit((values) => mutation.mutate(values))}
+          className="space-y-4"
+        >
+          <div>
+            <input
+              placeholder="Descripción"
+              {...register("descripcion")}
+              className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
+            />
+            {errors.descripcion && (
+              <p className="text-xs text-red-500 mt-1 ml-1">
+                {errors.descripcion.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="number"
+              placeholder="Monto"
+              {...register("monto")}
+              className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
+            />
+            {errors.monto && (
+              <p className="text-xs text-red-500 mt-1 ml-1">
+                {errors.monto.message}
+              </p>
+            )}
+          </div>
 
           <input
             type="date"
-            value={form.fecha}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                fecha: e.target.value,
-              })
-            }
+            {...register("fecha")}
             className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           />
 
           <select
-            value={form.categoria_id}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                categoria_id: e.target.value,
-              })
-            }
+            {...register("categoria_id")}
             className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           >
             <option value="">Categoría</option>
@@ -206,13 +234,7 @@ function AgregarGastoModal({
           </select>
 
           <select
-            value={form.tipo_cuenta_id}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                tipo_cuenta_id: e.target.value,
-              })
-            }
+            {...register("tipo_cuenta_id")}
             className="w-full bg-slate-100 border border-pink-100 rounded-2xl px-5 py-4 outline-none text-slate-900"
           >
             <option value="">Cuenta</option>
@@ -229,8 +251,8 @@ function AgregarGastoModal({
           </select>
 
           <button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
+            type="submit"
+            disabled={mutation.isPending || !isValid}
             className="
               w-full
               bg-primary
@@ -239,6 +261,8 @@ function AgregarGastoModal({
               font-bold
               text-lg
               mt-5
+              disabled:opacity-50
+              disabled:cursor-not-allowed
             "
           >
             {mutation.isPending
@@ -247,7 +271,7 @@ function AgregarGastoModal({
               ? "Guardar cambios"
               : "Guardar gasto"}
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

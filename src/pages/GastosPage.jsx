@@ -8,7 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { useGastos } from '../modules/gastos/hooks/useGastos';
+import { useGastos, useEliminarGasto } from '../modules/gastos/hooks/useGastos';
 import { useCategorias } from '../modules/gastos/hooks/useCategorias';
 import { useTiposCuenta } from '../modules/gastos/hooks/useTiposCuenta';
 import GastoCard from '../modules/gastos/components/GastoCard';
@@ -54,9 +54,21 @@ function GastosPage() {
 
 
 
+  const eliminarGasto = useEliminarGasto();
+
   const handleEditarGasto = (gasto) => {
   setGastoSeleccionado(gasto);
   setOpenModal(true);
+};
+
+const handleEliminarGasto = (gasto) => {
+  const confirmado = window.confirm(
+    `¿Eliminar el gasto "${gasto.descripcion || 'sin descripción'}"? Esta acción no se puede deshacer.`
+  );
+
+  if (!confirmado) return;
+
+  eliminarGasto.mutate(gasto.id);
 };
 const fechaFiltro = useMemo(() => {
 
@@ -137,7 +149,6 @@ const gastosPorCategoria = useMemo(() => {
   gastosFiltrados.forEach((gasto) => {
     const categoria =
       gasto.categoria?.nombre ||
-      gasto.Categoria?.nombre ||
       'Sin categoría';
 
     resumen[categoria] =
@@ -615,6 +626,7 @@ const tieneFiltrosActivos =
     Usuario={gasto.usuario}
     index={index}
     onEdit={() => handleEditarGasto(gasto)}
+    onDelete={() => handleEliminarGasto(gasto)}
   />
 ))}
             </motion.div>
