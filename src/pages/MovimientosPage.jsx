@@ -250,7 +250,7 @@ function MovimientosPage() {
                           );
                           setPagina(1);
                         }}
-                        className={`px-3 py-1.5 rounded-full text-xs transition ${
+                        className={`inline-flex items-center justify-center min-h-[44px] px-4 rounded-full text-xs transition ${
                           categoriaSeleccionada === cat.id
                             ? 'bg-primary text-white'
                             : 'bg-slate-100 text-slate-600 hover:bg-pink-50'
@@ -274,7 +274,7 @@ function MovimientosPage() {
                           );
                           setPagina(1);
                         }}
-                        className={`px-3 py-1.5 rounded-full text-xs transition ${
+                        className={`inline-flex items-center justify-center min-h-[44px] px-4 rounded-full text-xs transition ${
                           tipoCuentaSeleccionado === tipo.id
                             ? 'bg-primary text-white'
                             : 'bg-slate-100 text-slate-600 hover:bg-pink-50'

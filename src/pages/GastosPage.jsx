@@ -386,7 +386,7 @@ const tieneFiltrosActivos =
                         );
                         setPagina(1);
                       }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      className={`inline-flex items-center justify-center min-h-[44px] px-4 rounded-full text-xs font-medium transition-all ${
                         categoriaSeleccionada === cat.id
                           ? 'bg-primary text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-pink-50'
@@ -415,7 +415,7 @@ const tieneFiltrosActivos =
                         );
                         setPagina(1);
                       }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      className={`inline-flex items-center justify-center min-h-[44px] px-4 rounded-full text-xs font-medium transition-all ${
                         tipoCuentaSeleccionado === tipo.id
                           ? 'bg-secondary text-slate-900'
                           : 'bg-slate-100 text-slate-600 hover:bg-pink-50'
