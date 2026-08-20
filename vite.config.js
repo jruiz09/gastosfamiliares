@@ -10,6 +10,12 @@ export default defineConfig({
 
     VitePWA({
 
+      // TODO(UX-offline): sin `workbox.runtimeCaching` las llamadas a la API
+      // (clienteAxios) no quedan cacheadas -- sin conexion la app abre pero
+      // las pantallas se quedan en loading/error. Pendiente de decision
+      // aparte (estrategia network-first vs stale-while-revalidate, que
+      // endpoints cachear, invalidacion tras mutations).
+
       registerType: 'autoUpdate',
 
       includeAssets: [
