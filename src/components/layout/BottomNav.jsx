@@ -6,7 +6,7 @@ function BottomNav() {
     'flex min-w-[72px] flex-col items-center justify-center rounded-2xl px-2 py-2 text-[11px] font-medium transition-all duration-200 active:scale-95';
 
   return (
-    <nav className="fixed bottom-2 left-2 right-2 rounded-[24px] border border-pink-100/70 bg-dark/95 px-2 py-2 z-50 md:hidden shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur-xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex flex-row items-center justify-around rounded-t-3xl border-t border-pink-100/70 bg-dark/95 px-2 py-2 md:hidden shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur-xl">
       <NavLink
         to="/"
         end
